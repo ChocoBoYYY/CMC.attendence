@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>CMC Attendance</title>
+<style>
+  body { font-family: Arial; background:#f4f4f4; }
+  .container { max-width:350px;margin:50px auto;background:white;padding:20px;border-radius:8px; }
+  input,button { width:100%;padding:10px;margin:8px 0;border-radius:5px;border:1px solid #ccc; }
+  button { background:#28a745;color:white;border:none; }
+  button:disabled { background:#ccc; }
+  p { color:#555; }
+</style>
+</head>
+<body>
+<div class="container">
+<h2>CMC Attendance</h2>
+<input type="text" id="name" placeholder="Enter Name">
+<input type="text" id="roll" placeholder="Enter Roll No">
+<input type="email" id="email" placeholder="Enter Email">
+<button id="getOtpBtn">Get OTP</button>
+
+<div id="otpSection" style="display:none;">
+  <input type="text" id="otp" placeholder="Enter OTP">
+  <button id="verifyBtn">Verify OTP</button>
+</div>
+<p id="status"></p>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyWTOizhkKLMn4GWOg2JgD6tfHL9Qv8fJpRDmisbt0--rxVe_AAGmUFDF_EnYCqDeNV/exec";
+const session = new URLSearchParams(window.location.search).get("session");
+
+if (!session) {
+  document.body.innerHTML = "<h3 style='text-align:center;color:red'>⛔ Invalid or expired link</h3>";
+}
+
+document.getElementById("getOtpBtn").addEventListener("click", () => {
+  fetch(API_URL, {
+    method:"POST",
+    body: new URLSearchParams({
+      action:"generateOTP",
+      session:session,
+      name:document.getElementById("name").value,
+      roll:document.getElementById("roll").value,
+      email:document.getElementById("email").value
+    })
+  }).then(r=>r.json()).then(data=>{
+    document.getElementById("status").innerText = data.message;
+    if(data.status==="success"){
+      document.getElementById("otpSection").style.display="block";
+    }
+  });
+});
+
+document.getElementById("verifyBtn").addEventListener("click", () => {
+  fetch(API_URL, {
+    method:"POST",
+    body: new URLSearchParams({
+      action:"verifyOTP",
+      session:session,
+      otp:document.getElementById("otp").value
+    })
+  }).then(r=>r.json()).then(data=>{
+    document.getElementById("status").innerText = data.message;
+  });
+});
+</script>
+</body>
+</html>
